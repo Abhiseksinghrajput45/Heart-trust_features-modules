@@ -1,5 +1,5 @@
 // ---------- LOGO (keep logo.png inside the Images folder) ----------
-const LOGO = "Images/logo.png";
+const LOGO = "images/logo.png";
 
 
 // Shortcut for document.querySelector
