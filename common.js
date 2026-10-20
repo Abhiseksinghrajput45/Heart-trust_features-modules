@@ -1,6 +1,4 @@
-// ---------- LOGO (keep logo.png inside the lowercase "images" folder) ----------
-const LOGO = "images/logo.png";   // folder name is lowercase on GitHub Pages (case-sensitive)
-
+const LOGO = "images/logo.png";   
 
 // Shortcut for document.querySelector
 const $ = s => document.querySelector(s);
@@ -267,3 +265,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ---------- BOOKING PAGE for the "LET'S TALK" button ----------
 // ...
 const BOOKING_URL = "https://calendly.com/YOUR-ACCOUNT/YOUR-MEETING";
+dcccccc
