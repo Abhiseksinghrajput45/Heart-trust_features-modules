@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>News &amp; Events – HEART Trust</title>
+  <meta name="description" content="Stay updated on health camps, government scheme drives, community agricultural initiatives, and annual impact reports from HEART Trust in Nabarangpur, Odisha.">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="news-events">
+  <main>
+
+    <h1>News &amp; Events</h1>
+
+    <!-- Camp Calendar Section -->
+    <div class="card">
+      <h3>📅 Camp calendar</h3>
+      <div id="cl">
+        <!-- Fallback / Static content if camps array in JavaScript loads dynamically -->
+        <div class="item">
+          <div>
+            <strong>Free Multi-Specialty Mobile Health Camp</strong>
+            <p style="margin: 4px 0 0; font-size: 0.9em; opacity: 0.85;">Tentulikhunti Block, Nabarangpur | Nov 12–14, 2026</p>
+          </div>
+          <span class="badge a">Health</span>
+        </div>
+
+        <div class="item">
+          <div>
+            <strong>Government Scheme Facilitation &amp; Enrolment Camp</strong>
+            <p style="margin: 4px 0 0; font-size: 0.9em; opacity: 0.85;">Papadahandi &amp; Dabugaon Gram Panchayats | Nov 25–28, 2026</p>
+          </div>
+          <span class="badge a">Scheme</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Updates Section -->
+    <div class="card">
+      <h3>Updates</h3>
+      
+      <div class="item">
+        <div>
+          <strong>HEART Trust Annual Impact Report 2025–2026</strong>
+          <p style="margin: 4px 0 0; font-size: 0.85em; opacity: 0.8;">Highlights of health, nutrition, and livelihood progress across tribal villages.</p>
+        </div>
+        <span class="badge">Report</span>
+      </div>
+
+      <div class="item">
+        <div>
+          <strong>Organic Paddy Cultivation Initiative Launched</strong>
+          <p style="margin: 4px 0 0; font-size: 0.85em; opacity: 0.8;">Empowering indigenous farmers in Nabarangpur with eco-friendly agriculture practices.</p>
+        </div>
+        <span class="badge">Agriculture</span>
+      </div>
+
+      <div class="item">
+        <div>
+          <strong>Clean Water &amp; Rural Sanitation Drive</strong>
+          <p style="margin: 4px 0 0; font-size: 0.85em; opacity: 0.8;">Installed low-maintenance community filtration units across 8 remote hamlets.</p>
+        </div>
+        <span class="badge">Community</span>
+      </div>
+    </div>
+
+    <script>
+      function init() {
+        if (typeof camps !== 'undefined' && Array.isArray(camps) && camps.length > 0) {
+          const el = document.getElementById('cl');
+          if (el) el.innerHTML = camps.map(camp).join('');
+        }
+      }
+      document.addEventListener('DOMContentLoaded', init);
+    </script>
+<section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="common.js"></script>
+</body>
+</html>

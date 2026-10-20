@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Admin – HEART Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="admin">
+  <main>
+
+    <h1>Admin Back-Office</h1>
+
+    <!-- SIGN IN -->
+    <div class="card" id="login">
+      <h3>Staff sign in</h3>
+      <label>Email</label><input id="em" type="email" autocomplete="username">
+      <label>Password</label><input id="pw" type="password" autocomplete="current-password">
+      <button class="btn" style="margin-top:.8rem" onclick="signin()">Sign in</button>
+      <p class="mut">Accounts are created by the administrator in Supabase. Each role sees only the forms it needs.</p>
+    </div>
+
+    <!-- PANEL (after sign in) -->
+    <div id="panel" hidden>
+      <p class="mut" id="who"></p>
+      <div class="tabs">
+        <button class="on" onclick="tab('sub',this)">Submissions</button>
+        <button onclick="tab('camp',this)">Camps</button>
+        <button onclick="out()">Sign out</button>
+      </div>
+      <div class="card" id="ac"></div>
+    </div>
+
+    <script>
+      const TYPES = ['camp_interest','camp_registration','teleconsult','farmer_advisory','fpo_shg_enquiry',
+        'biomass_collection','youth_ambassador','help_request','sponsorship_intent','partner_enquiry','contact_message'];
+
+      async function init() {
+        if (!sb) {
+          $('#login').innerHTML = '<h3>Supabase not connected</h3><p class="mut">Add your project URL and anon key in supabase-config.js.</p>';
+          return;
+        }
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) enter();
+      }
+
+      async function signin() {
+        const { error } = await sb.auth.signInWithPassword({ email: $('#em').value, password: $('#pw').value });
+        if (error) return toast(error.message);
+        enter();
+      }
+
+      // Check the signed-in user is registered staff, then open the panel
+      async function enter() {
+        const { data: { user } } = await sb.auth.getUser();
+        const { data } = await sb.from('staff').select('role,name').eq('user_id', user.id).maybeSingle();
+        if (!data) { await sb.auth.signOut(); return toast('This account is not registered as HEART staff'); }
+        $('#login').hidden = true; $('#panel').hidden = false;
+        $('#who').textContent = (data.name || user.email) + ' · ' + data.role.replace('_', ' ');
+        tab('sub');
+      }
+
+      async function out() { await sb.auth.signOut(); location.reload(); }
+
+      function tab(name, btn) {
+        if (btn) btn.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b == btn));
+        name == 'sub' ? subs() : camps_();
+      }
+
+      // ---- Submissions (forms filled on the website) ----
+      async function subs() {
+        $('#ac').innerHTML = `<h3>Submissions</h3>
+          <select id="ft" onchange="loadSubs()"><option value="">All forms</option>${TYPES.map(t => `<option>${t}</option>`).join('')}</select>
+          <div id="sl2" class="scroll" style="overflow-x:auto"></div>`;
+        loadSubs();
+      }
+      async function loadSubs() {
+        const f = $('#ft').value;
+        let q = sb.from('submissions').select('*').order('created_at', { ascending: false }).limit(100);
+        if (f) q = q.eq('form_type', f);
+        const { data, error } = await q;
+        if (error) return $('#sl2').innerHTML = '<p class="mut">' + esc(error.message) + '</p>';
+        $('#sl2').innerHTML = data.length ? `<table><tr><th>Date</th><th>Form</th><th>Ref</th><th>Details</th><th>Status</th></tr>` +
+          data.map(r => `<tr>
+            <td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
+            <td><span class="badge">${esc(r.form_type)}</span></td>
+            <td>${esc(r.ticket)}</td>
+            <td>${Object.entries(r.data).map(([k, v]) => `<div><b>${esc(k)}:</b> ${esc(v)}</div>`).join('')}</td>
+            <td><select onchange="setStatus('${r.id}',this.value)">
+              ${['new', 'in_progress', 'done'].map(s => `<option ${s == r.status ? 'selected' : ''}>${s}</option>`).join('')}
+            </select></td></tr>`).join('') + '</table>'
+          : '<p class="mut">No submissions yet.</p>';
+      }
+      async function setStatus(id, status) {
+        const { error } = await sb.from('submissions').update({ status }).eq('id', id);
+        toast(error ? error.message : 'Status updated');
+      }
+
+      // ---- Camps (publish / remove) ----
+      async function camps_() {
+        $('#ac').innerHTML = `<h3>Publish a camp</h3>
+          <div class="row"><input id="cv" placeholder="Village"><input id="ct" placeholder="Type (e.g. General + Eye)"><input id="cd" type="date"></div>
+          <button class="btn" style="margin-top:.8rem" onclick="addCamp()">Publish</button>
+          <h3 style="margin-top:1.5rem">Published camps</h3><div id="cl2"></div>`;
+        loadCampList();
+      }
+      async function addCamp() {
+        const row = { village: $('#cv').value.trim(), camp_type: $('#ct').value.trim(), camp_date: $('#cd').value };
+        if (!row.village || !row.camp_type || !row.camp_date) return toast('Fill village, type and date');
+        const { error } = await sb.from('camps').insert(row);
+        toast(error ? error.message : 'Camp published');
+        if (!error) camps_();
+      }
+      async function loadCampList() {
+        const { data, error } = await sb.from('camps').select('*').order('camp_date');
+        if (error) return $('#cl2').innerHTML = esc(error.message);
+        $('#cl2').innerHTML = data.length ? data.map(c => `<div class="item"><span><b>${esc(c.village)}</b> · ${esc(c.camp_type)} · ${esc(c.camp_date)}</span>
+          <button class="btn o" onclick="delCamp('${c.id}')">Remove</button></div>`).join('') : '<p class="mut">No camps yet.</p>';
+      }
+      async function delCamp(id) {
+        const { error } = await sb.from('camps').delete().eq('id', id);
+        toast(error ? error.message : 'Removed');
+        loadCampList();
+      }
+    </script>
+<section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="common.js"></script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Healthcare – HEART Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="healthcare">
+  <main>
+
+    <h1>Healthcare &amp; Telemedicine</h1>
+
+    <!-- HEALTH CAMP FINDER -->
+    <div class="card">
+      <h3>📍 Health camp finder <span class="badge t">Phase 1</span></h3>
+      <div class="row">
+        <div>
+          <label>Village</label>
+          <select id="fv" onchange="f()"></select>
+        </div>
+        <div>
+          <label>From date</label>
+          <input type="date" id="fd" value="2026-10-15" onchange="f()">
+        </div>
+      </div>
+      <div id="cl"></div>
+    </div>
+
+    <!-- 3-STEP TELE-CONSULTATION FORM -->
+    <div class="card">
+      <h3>💻 Assisted tele-consultation request <span class="badge a">Phase 3 pilot</span></h3>
+      <div id="tf"></div>
+    </div>
+
+    <!-- PHASE 3 STUBS -->
+    <div class="grid">
+      <div class="card">
+        <h3>🔬 Telepathology &amp; lab referrals</h3>
+        <p class="mut">Referral coordination with partner labs.</p>
+        <span class="badge a">Phase 3 · stub</span>
+      </div>
+      <div class="card">
+        <h3>🏥 Clinic directory</h3>
+        <p class="mut">Nearby clinics and services. Clinical care is delivered by qualified professionals.</p>
+      </div>
+      <div class="card">
+        <h3>🔔 Referral status &amp; reminders</h3>
+        <p class="mut">Follow-up reminders for registered users.</p>
+      </div>
+    </div>
+
+    <!-- NEW: OFFICIAL HEALTH RESOURCES -->
+    <h2>Official health resources</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>📚 National Health Portal</h3>
+        <p class="mut">Health education, disease information, health programmes and resources for citizens and professionals. Reference for our health and nutrition knowledge library.</p>
+        <a class="btn o" href="https://nhp.gov.in" target="_blank" rel="noopener">Open portal ↗</a>
+      </div>
+      <div class="card">
+        <h3>💻 eSanjeevani</h3>
+        <p class="mut">India's national telemedicine service, connecting patients and healthcare providers including rural and remote areas. Reference model for our assisted consultation and clinic network.</p>
+        <a class="btn o" href="https://esanjeevani.mohfw.gov.in" target="_blank" rel="noopener">Open portal ↗</a>
+      </div>
+    </div>
+
+    <!-- NUTRITION LIBRARY -->
+    <h2>Nutrition &amp; Family Wellness</h2>
+    <div class="grid" id="nu"></div>
+
+    <p class="mut">Patient data is shared only with consent and role-based access.</p>
+
+    <script>
+      let s = 0;      // current form step (0, 1, 2)
+      let tel = {};   // saved form answers
+
+      // Filter camps by village and date
+      function f() {
+        const v = $('#fv').value;
+        const d = $('#fd').value;
+        const list = camps.filter(c => (!v || c.v == v) && c.d >= d);
+        $('#cl').innerHTML = list.map(camp).join('') || '<p class="mut">No camps match.</p>';
+      }
+
+      // Draw the current step of the tele-consultation form
+      function tf() {
+        const g = k => tel[k] || '';
+        $('#tf').innerHTML = [
+          `<label>Patient name</label>
+           <input id="n" value="${g('n')}">
+           <label>Village</label>
+           <input id="v" value="${g('v')}">
+           <button class="btn" style="margin-top:.8rem" onclick="nx(1)">Next</button>`,
+
+          `<label>Concern</label>
+           <select id="c">
+             <option>Fever / cough</option>
+             <option>Pregnancy care</option>
+             <option>Diabetes / BP</option>
+             <option>Eye / dental</option>
+           </select>
+           <label class="chk"><input type="checkbox" id="k"> I consent to share my records with the doctor</label>
+           <button class="btn" style="margin-top:.8rem" onclick="nx(2)">Review</button>`,
+
+          `<p><b>${g('n')}</b> – ${g('v')}<br>${g('c')}</p>
+           <button class="btn" onclick="s=0;tel={};toast('Request sent (demo)');tf()">Submit</button>`
+        ][s];
+      }
+
+      // Go to next step (consent is required before review)
+      function nx(n) {
+        if (n == 2 && !$('#k').checked) return toast('Consent required');
+        document.querySelectorAll('#tf input,#tf select').forEach(e => tel[e.id] = e.value);
+        s = n;
+        tf();
+      }
+
+      function init() {
+        $('#fv').innerHTML = '<option value="">All villages</option>' +
+          [...new Set(camps.map(c => c.v))].map(v => `<option>${v}</option>`).join('');
+        f();
+        tf();
+
+        $('#nu').innerHTML = [
+          ['🤰', 'Maternal & child nutrition', 'Antenatal care, breastfeeding and infant feeding.'],
+          ['🩸', 'Anaemia & malnutrition', 'Millets, greens, jaggery, IFA tablets.'],
+          ['🍲', 'Local recipes', 'Ragi ladoo, mandia jau, sag with dal.'],
+          ['🌸', 'Adolescent & menstrual health', 'Hygiene and education.'],
+          ['👵', 'Elderly care', 'Healthy lifestyle resources.']
+        ].map(x => `
+          <div class="card">
+            <h3>${x[0]} ${x[1]}</h3>
+            <p class="mut">${x[2]}</p>
+          </div>`).join('');
+      }
+    </script>
+<section class="card"><h2 style="margin-top:0">What our health programme covers</h2><ul class="bul">
+<li>Upcoming health camp calendar and village schedules.</li>
+<li>Doctor consultations, BP and diabetes screening.</li>
+<li>Eye and dental health awareness.</li>
+<li>Patient referral and follow-up coordination.</li>
+<li>Mobile medical outreach programme.</li>
+<li>Volunteer and healthcare professional registration.</li></ul></section>
+
+<section class="card"><h2 style="margin-top:0">Nutrition &amp; family wellness</h2><ul class="bul">
+<li>Maternal and child nutrition awareness.</li>
+<li>Anaemia and malnutrition prevention education.</li>
+<li>Healthy recipes using locally available foods.</li>
+<li>Breastfeeding and infant feeding awareness.</li>
+<li>Adolescent and menstrual health education.</li>
+<li>Elderly care and healthy lifestyle resources.</li></ul></section>
+
+<section class="card"><h2 style="margin-top:0">Digital health services (rolling out in phases)</h2><ul class="bul">
+<li>Online health camp registration and appointment requests.</li>
+<li>Telemedicine consultation requests and follow-up scheduling.</li>
+<li>Telepathology and laboratory referral coordination.</li>
+<li>Health education articles in Odia and relevant local languages.</li>
+<li>Patient follow-up reminders and referral status.</li>
+<li>Clinic and healthcare service directory.</li>
+<li>Consent-based patient records for authorised healthcare professionals.</li></ul>
+<p class="mut">Clinical services are delivered by qualified professionals. Patient information is protected through consent, access controls and applicable data protection requirements.</p></section>
+ <section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

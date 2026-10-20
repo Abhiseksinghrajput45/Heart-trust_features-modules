@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Impact – HEART Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="impact">
+  <main>
+
+    <h1>Impact Dashboard</h1>
+    <p class="mut">
+      Sample data. Publish only measured, verified figures with reporting periods and definitions.
+    </p>
+
+    <!-- FILTERS -->
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>Area</label>
+          <select id="a" onchange="r()"><option value="">All</option></select>
+        </div>
+        <div>
+          <label>Year</label>
+          <select id="y" onchange="r()">
+            <option value="">All</option>
+            <option>2025</option>
+            <option>2026</option>
+          </select>
+        </div>
+        <div>
+          <label>Location</label>
+          <select id="l" onchange="r()"><option value="">All</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div id="o"></div>
+
+    <script>
+      // [area, year, location, value]
+      const D = [
+        ['Healthcare',  '2025', 'Umerkote', 4200],
+        ['Healthcare',  '2026', 'Jharigam', 3100],
+        ['Nutrition',   '2026', 'Umerkote', 1800],
+        ['Agriculture', '2025', 'Raighar',   900],
+        ['Agriculture', '2026', 'Dabugam',  1300],
+        ['Biomass',     '2026', 'Dabugam',   240],
+        ['Education',   '2026', 'Raighar',  1900],
+        ['Women',       '2026', 'Jharigam',  650],
+        ['Welfare',     '2026', 'Umerkote',  480]
+      ];
+
+      // Re-draw results using the selected filters
+      function r() {
+        const a = $('#a').value, y = $('#y').value, l = $('#l').value;
+        const x = D.filter(d => (!a || d[0] == a) && (!y || d[1] == y) && (!l || d[2] == l));
+        const total = x.reduce((sum, d) => sum + d[3], 0);
+        const max = Math.max(1, ...x.map(d => d[3]));
+
+        $('#o').innerHTML = `
+          <div class="card">
+            <div class="num">${total.toLocaleString('en-IN')}</div>
+            <div class="mut">People / units reached (mixed indicators)</div>
+          </div>
+          <div class="card">
+            ${x.map(d => `
+              <div>${d[0]} · ${d[2]} · ${d[1]} <b>${d[3]}</b>
+                <div class="bar2"><b style="width:${d[3] / max * 100}%"></b></div>
+              </div>`).join('') || 'No data'}
+          </div>`;
+      }
+
+      function init() {
+        // Build dropdown options from the data
+        const unique = i => [...new Set(D.map(d => d[i]))].map(v => `<option>${v}</option>`).join('');
+        $('#a').innerHTML += unique(0);
+        $('#l').innerHTML += unique(2);
+        r();
+      }
+    </script>
+<section class="card"><h2 style="margin-top:0">What we measure</h2><ul class="bul">
+<li>Healthcare: people reached, camps held, referrals completed.</li>
+<li>Nutrition: awareness sessions, families reached.</li>
+<li>Agriculture: farmers trained, soil tests completed.</li>
+<li>Biomass recycling: tonnes collected or recycled, where measured.</li>
+<li>Education: schools engaged, students trained.</li>
+<li>Women’s empowerment: women trained, SHGs engaged.</li>
+<li>Welfare support: applications assisted, referrals completed.</li>
+<li>Community engagement: villages reached, active volunteers.</li></ul>
+<p class="mut">Only measured and verified figures are published, with reporting periods and clear definitions.</p></section>
+ 
+<section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+
+</main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

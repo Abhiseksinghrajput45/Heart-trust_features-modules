@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Contact – HEART Trust</title>
+  <link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" as="image" href="Images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="contact">
+  <main>
+
+    <h1>Contact</h1>
+
+    <div class="card">
+      <h3>Send an enquiry</h3>
+      <div class="row">
+        <input placeholder="Name">
+        <input placeholder="Email or mobile">
+      </div>
+      <label>Message</label>
+      <textarea rows="4"></textarea>
+      <button class="btn" style="margin-top:.8rem" onclick="toast('Message sent (demo)')">Send</button>
+    </div>
+
+    <div class="card">
+      <h3>Track a support request</h3>
+      <div class="row">
+        <input id="rid" placeholder="Request ID e.g. HT-1234">
+        <button class="btn t"
+          onclick="toast($('#rid').value ? 'Status: Under review (demo)' : 'Enter an ID')">Check</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Office</h3>
+      <p class="mut">HEART Trust, Nabarangpur, Odisha – add address, phone and email.</p>
+    </div>
+<section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="common.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

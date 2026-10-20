@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Book a meeting – HEART Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="book">
+  <main>
+
+    <div class="card bk">
+      <!-- LEFT: who you are meeting -->
+      <div class="bk-l">
+        <img id="bklogo" class="bk-logo" alt="HEART Trust logo">
+        <p class="mut">Dr Bibhuti Bhusan Pattnayak FRSA</p>
+        <h1 style="font-size:2rem">Talk to HEART Trust</h1>
+        <p>⏱ 30 min</p>
+        <p class="mut">Web conferencing details provided upon confirmation.</p>
+      </div>
+
+      <!-- RIGHT: calendar → time → details → confirmation -->
+      <div class="bk-r" id="bkr"></div>
+    </div>
+
+    <script>
+      // ---- Settings ----
+      const FIRST = '10:00', LAST = '17:30', STEP = 30;   // meeting start times (IST), every 30 min
+      const DAYS_AHEAD = 90;                              // how far ahead people can book
+      const pad = n => String(n).padStart(2, '0');
+      const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      const istNow = () => new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+
+      let view, pick = { d: null, t: null }, taken = [];
+
+      // All start times for a date (hides times that have already passed today)
+      function slotsFor(dstr) {
+        const out = [];
+        const now = istNow();
+        const [h0, m0] = FIRST.split(':').map(Number), [h1, m1] = LAST.split(':').map(Number);
+        for (let m = h0*60 + m0; m <= h1*60 + m1; m += STEP) {
+          const t = pad(Math.floor(m/60)) + ':' + pad(m % 60);
+          if (dstr === iso(now) && m <= now.getHours()*60 + now.getMinutes() + 60) continue;
+          out.push(t);
+        }
+        return out;
+      }
+
+      // ---- Step 1: calendar ----
+      function calendar() {
+        const now = istNow(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const last = new Date(today); last.setDate(last.getDate() + DAYS_AHEAD);
+        const y = view.getFullYear(), mo = view.getMonth();
+        const offset = (new Date(y, mo, 1).getDay() + 6) % 7;     // Monday first
+        const count = new Date(y, mo + 1, 0).getDate();
+        const month = view.toLocaleDateString(lang === 'or' ? 'or-IN' : 'en-US', { month: 'long', year: 'numeric' });
+        let cells = '';
+        for (let i = 0; i < offset; i++) cells += '<span></span>';
+        for (let d = 1; d <= count; d++) {
+          const dt = new Date(y, mo, d), ds = iso(dt);
+          const ok = dt >= today && dt <= last && dt.getDay() !== 0;       // Sundays closed
+          cells += `<button class="day ${ds === pick.d ? 'sel' : ''}" ${ok ? '' : 'disabled'} onclick="pickDay('${ds}')">${d}</button>`;
+        }
+        const prevOff = y === today.getFullYear() && mo === today.getMonth();
+        $('#bkr').innerHTML = `
+          <h2 style="margin-top:0">Select a Date &amp; Time</h2>
+          <div class="mnav"><button ${prevOff ? 'disabled' : ''} onclick="moveMonth(-1)">‹</button><span>${month}</span><button onclick="moveMonth(1)">›</button></div>
+          <div class="cal">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x => `<b>${x}</b>`).join('')}${cells}</div>
+          <p class="mut"><b>Time zone</b><br>India Standard Time</p>
+          <div id="slots"></div>`;
+        if (pick.d && pick.d.slice(0, 7) === `${y}-${pad(mo+1)}`) showSlots();
+      }
+      function moveMonth(n) { view = new Date(view.getFullYear(), view.getMonth() + n, 1); calendar(); }
+
+      async function pickDay(ds) {
+        pick = { d: ds, t: null };
+        taken = [];
+        if (sb) {
+          const { data } = await sb.rpc('taken_slots', { d: ds });
+          taken = (data || []).map(x => String(x).slice(0, 5));
+        }
+        calendar();
+      }
+      function showSlots() {
+        const free = slotsFor(pick.d).filter(t => !taken.includes(t));
+        $('#slots').innerHTML = free.length
+          ? `<div class="slots">${free.map(t => `<button class="slot" onclick="pickTime('${t}')">${t}</button>`).join('')}</div>`
+          : '<p class="mut">No times left on this day. Please choose another date.</p>';
+      }
+
+      // ---- Step 2: details ----
+      function pickTime(t) {
+        pick.t = t;
+        const nice = new Date(pick.d + 'T00:00:00').toLocaleDateString(lang === 'or' ? 'or-IN' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        $('#bkr').innerHTML = `
+          <button class="btn o" onclick="calendar()">← Back</button>
+          <h2>Enter details</h2>
+          <p><b>${nice}</b> · ${t} <span class="mut">(India Standard Time)</span></p>
+          <label>Name</label><input id="bn" autocomplete="name">
+          <label>Email</label><input id="be" type="email" autocomplete="email">
+          <label>Mobile</label><input id="bp" inputmode="tel" autocomplete="tel">
+          <label>What would you like to talk about?</label><textarea id="bt" rows="3"></textarea>
+          <button class="btn" style="margin-top:1rem" onclick="confirmBooking()">Schedule meeting</button>`;
+      }
+
+      // ---- Step 3: save to Supabase and confirm ----
+      async function confirmBooking() {
+        const name = $('#bn').value.trim(), email = $('#be').value.trim();
+        if (!name || !/^\S+@\S+\.\S+$/.test(email)) return toast('Please enter your name and a valid email');
+        const ticket = 'MT-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+        if (sb) {
+          const { error } = await sb.from('bookings').insert({
+            ticket, slot_date: pick.d, slot_time: pick.t + ':00', name, email,
+            phone: $('#bp').value.trim() || null, note: $('#bt').value.trim() || null });
+          if (error) {
+            if (error.code === '23505') { toast('Sorry, that time was just taken. Please pick another.'); return pickDay(pick.d); }
+            console.error(error); return toast('Sorry, could not book. Please try again.');
+          }
+        }
+        $('#bkr').innerHTML = `
+          <h2 style="margin-top:0">You are scheduled</h2>
+          <p>Reference: <b>${esc(ticket)}</b></p>
+          <p>${esc(pick.d)} · ${esc(pick.t)} <span class="mut">(India Standard Time)</span></p>
+          <p class="mut">We will contact you at ${esc(email)} with the web conferencing details.${sb ? '' : ' (Demo – Supabase not connected, nothing was saved.)'}</p>
+          <a class="btn o" href="index.html">Back to home</a>`;
+      }
+
+      function init() {
+        $('#bklogo').src = LOGO;
+        const n = istNow();
+        view = new Date(n.getFullYear(), n.getMonth(), 1);
+        calendar();
+      }
+    </script>
+
+  </main>
+
+  <script src="common.js"></script>
+</body>
+</html>

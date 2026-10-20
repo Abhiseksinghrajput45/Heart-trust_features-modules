@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Community Support – HEART Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="community-support">
+  <main>
+
+    <h1>Community Welfare &amp; Entitlements</h1>
+
+    <!-- SCHEME NAVIGATOR -->
+    <div class="card">
+      <h3>Scheme navigator</h3>
+      <label>Household type</label>
+      <select id="sw" onchange="sc()">
+        <option value="f">Farmer</option>
+        <option value="l">Landless agri household</option>
+        <option value="w">Daily wage worker / other</option>
+      </select>
+      <p class="mut">
+        Indicative only. HEART directs you to official channels and does not promise approvals.
+      </p>
+    </div>
+    <div id="sr"></div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>👩 Women &amp; SHGs</h3>
+        <p class="mut">Training and livelihood support.</p>
+      </div>
+      <div class="card">
+        <h3>🎓 Scholarships &amp; pensions</h3>
+        <p class="mut">Application guidance and referral contacts.</p>
+      </div>
+    </div>
+
+    <!-- HELP REQUEST -->
+    <div class="card">
+      <h3>🆘 Help &amp; support request</h3>
+      <div class="row">
+        <input placeholder="Name">
+        <input placeholder="Mobile">
+      </div>
+      <label>Need</label>
+      <select>
+        <option>Document help</option>
+        <option>Scheme application</option>
+        <option>Health referral</option>
+      </select>
+      <button class="btn" style="margin-top:.8rem"
+        onclick="toast('Request ID HT-' + Math.floor(Math.random()*9000+1000) + ' (demo)')">Submit</button>
+    </div>
+
+    <script>
+      // w = which household types the scheme applies to (f / l / w)
+      const S = [
+        { n: 'KALIA', w: 'fl',
+          d: ['Aadhaar', 'Bank passbook', 'Land record / cultivator certificate', 'Ration card'],
+          u: 'https://kalia.odisha.gov.in' },
+        { n: 'Krishi Odisha', w: 'f',
+          d: ['Aadhaar', 'Land record (RoR)', 'Bank passbook'],
+          u: 'https://krishi.odisha.gov.in' },
+        { n: 'Ayushman Bharat (PM-JAY)', w: 'flw',
+          d: ['Aadhaar', 'Ration card / SECC proof', 'Mobile number'],
+          u: 'https://pmjay.gov.in' }
+      ];
+
+      // Show schemes that match the selected household type
+      function sc() {
+        const w = $('#sw').value;
+        $('#sr').innerHTML = S.filter(s => s.w.includes(w)).map(s => `
+          <div class="card">
+            <h3>${s.n}</h3>
+            <b>Documents</b>
+            ${s.d.map(d => `<label class="chk"><input type="checkbox"> ${d}</label>`).join('')}
+            <a class="btn t" style="margin-top:.5rem" target="_blank" rel="noopener" href="${s.u}">Official portal ↗</a>
+          </div>`).join('');
+      }
+
+      function init() { sc(); }
+    </script>
+<section class="card"><h2 style="margin-top:0">What our community support covers</h2><ul class="bul">
+<li>Information on eligible government health schemes.</li>
+<li>Farmer support and agricultural programme awareness.</li>
+<li>Tribal welfare and livelihood scheme information.</li>
+<li>Scholarships, education assistance and pension guidance.</li>
+<li>Digital literacy and financial inclusion.</li>
+<li>Application guidance, document checklists and referral contacts.</li>
+<li>Updates on government camps and community support events.</li></ul>
+<p class="mut">We explain eligibility and direct you to official government channels. We do not promise benefits or approvals.</p></section>
+  
+<section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

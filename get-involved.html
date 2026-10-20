@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Get Involved – HEART Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="get-involved">
+  <main>
+
+    <h1>Donate, Sponsor &amp; Partner</h1>
+
+    <!-- SPONSORSHIP CALCULATOR -->
+    <div class="card">
+      <h3>❤️ Sponsorship calculator</h3>
+      <div class="tabs">
+        <button id="b0" class="on" onclick="sp(0)">Health camp</button>
+        <button id="b1" onclick="sp(1)">Village programme</button>
+      </div>
+      <label>Quantity: <b id="qv">1</b></label>
+      <input type="range" id="q" min="1" max="12" value="1" oninput="sp()">
+
+      <!-- CHANGE 1: name and contact row (new) -->
+      <div class="row">
+        <input placeholder="Your name">
+        <input placeholder="Email or mobile">
+      </div>
+
+      <div class="num" id="amt"></div>
+      <div class="mut" id="amd"></div>
+
+      <!-- CHANGE 2: Donate button now saves to Supabase -->
+      <button class="btn a" style="margin-top:.8rem"
+        onclick="send(this,'sponsorship_intent','Thank you, we will contact you',{type:m?'village':'camp',amount:$('#amt').textContent})">Donate</button>
+    </div>
+
+    <!-- ENQUIRY FORMS -->
+    <div class="card">
+      <h3>Enquiry</h3>
+      <div class="tabs" id="en"></div>
+      <div class="row">
+        <input placeholder="Name">
+        <input placeholder="Email">
+      </div>
+      <label id="el"></label>
+      <textarea rows="3"></textarea>
+
+      <!-- CHANGE 3: Send button now saves to Supabase -->
+      <button class="btn" style="margin-top:.8rem"
+        onclick="send(this,'partner_enquiry','Thank you',{enquiry_type:E[ei][0]})">Send</button>
+    </div>
+
+    <div class="card">
+      <h3>Transparency</h3>
+      <p class="mut">
+        Project budgets, fund utilisation and receipts (where supported) will be published
+        with each campaign. International and diaspora contribution information goes here.
+      </p>
+    </div>
+
+    <script>
+      // CHANGE 4: 'ei' remembers which enquiry tab is open
+      let ei = 0, m = 0;   // ei = enquiry tab, m = 0 health camp / 1 village programme
+
+      // [tab label, textarea label]
+      const E = [
+        ['Volunteer', 'Why would you like to help?'],
+        ['Doctor / specialist', 'Specialty and availability'],
+        ['Corporate CSR', 'Focus area and budget'],
+        ['University / research', 'Partnership idea']
+      ];
+
+      // Update the sponsorship amount
+      function sp(x) {
+        if (x !== undefined) {
+          m = x;
+          [0, 1].forEach(i => $('#b' + i).classList.toggle('on', i == x));
+        }
+        const q = +$('#q').value;
+        $('#qv').textContent = q;
+        $('#amt').textContent = '₹' + (q * (m ? 150000 : 25000)).toLocaleString('en-IN');
+        $('#amd').textContent = m
+          ? `Year-round support for ${q} village(s)`
+          : `Medicines, doctors and logistics for ${q} camp(s)`;
+      }
+
+      // Switch enquiry tab
+      function eq(i) {
+        document.querySelectorAll('#en button').forEach((b, j) => b.classList.toggle('on', i == j));
+        $('#el').textContent = E[i][1];
+        ei = i;   // <-- added line
+      }
+
+      function init() {
+        sp(0);
+        $('#en').innerHTML = E.map((e, i) => `<button onclick="eq(${i})">${e[0]}</button>`).join('');
+        eq(0);
+      }
+    </script>
+<section class="card"><h2 style="margin-top:0">Ways to support HEART Trust</h2><ul class="bul">
+<li>Online donation and fundraising campaigns.</li>
+<li>Sponsor a health camp, school or village programme.</li>
+<li>Corporate social responsibility (CSR) partnership enquiries.</li>
+<li>International donor and diaspora contribution information.</li>
+<li>Volunteer, doctor and specialist registration.</li>
+<li>Institutional, university and research partnership enquiries.</li>
+<li>Transparent project budgets, funding utilisation and impact reports.</li>
+<li>Donation acknowledgements and receipts where supported.</li></ul></section>
+  
+<section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+
+</main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="common.js"></script>
+</body>
+</html>

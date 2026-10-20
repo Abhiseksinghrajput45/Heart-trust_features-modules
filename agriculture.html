@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Agriculture – HEART Trust</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body data-page="agriculture">
+  <main>
+
+    <h1>Agriculture, Research &amp; Farmers</h1>
+
+    <!-- FARMER REGISTRATION / ADVISORY FORM -->
+    <div class="card">
+      <h3>🌾 Farmer registration &amp; soil test / crop advisory <span class="badge t">Phase 2</span></h3>
+      <div class="row">
+        <div><label>Name</label><input></div>
+        <div><label>Village</label><input></div>
+      </div>
+      <div class="row">
+        <div><label>Land (acres)</label><input type="number"></div>
+        <div>
+          <label>Crop</label>
+          <select>
+            <option>Paddy</option>
+            <option>Maize</option>
+            <option>Pulses</option>
+            <option>Millets</option>
+          </select>
+        </div>
+      </div>
+      <label>Service</label>
+      <select>
+        <option>Soil test + advisory</option>
+        <option>Climate-resilient farming advice</option>
+        <option>Pest / disease advice</option>
+      </select>
+      <button class="btn" style="margin-top:.8rem" onclick="toast('Request received (demo)')">Submit</button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>🔬 Research &amp; demo plots</h3>
+        <p class="mut">Demonstration projects and findings.</p>
+        <span class="badge a">Phase 4 · stub</span>
+      </div>
+      <div class="card">
+        <h3>👥 FPO &amp; SHG engagement</h3>
+        <p class="mut">Collective buying, selling and credit.</p>
+        <button class="btn t" onclick="toast('Enquiry sent (demo)')">Enquire</button>
+      </div>
+      <div class="card">
+        <h3>📚 Training &amp; resources</h3>
+        <p class="mut">Workshops: Soil Health Card (22 Oct, Raighar), FPO formation (5 Nov).</p>
+      </div>
+    </div>
+
+    <!-- UPDATED: OFFICIAL FARMER SERVICES (with descriptions) -->
+    <h2>Official farmer services</h2>
+    <div class="card">
+      <div class="item">
+        <span><b>KVK / ICAR network</b><br>
+          <span class="mut">Farmer training, demonstrations, research partnerships and agricultural advisory.</span></span>
+        <a href="https://kvk.icar.gov.in" target="_blank" rel="noopener">Open ↗</a>
+      </div>
+      <div class="item">
+        <span><b>KALIA</b><br>
+          <span class="mut">Farmer registration and assistance under Odisha's farmer-support programme. We link farmers to the official scheme instead of duplicating it.</span></span>
+        <a href="https://kalia.odisha.gov.in" target="_blank" rel="noopener">Open ↗</a>
+      </div>
+      <div class="item">
+        <span><b>Krishi Odisha</b><br>
+          <span class="mut">Agricultural schemes, farmer services and links to state agriculture programmes.</span></span>
+        <a href="https://krishi.odisha.gov.in" target="_blank" rel="noopener">Open ↗</a>
+      </div>
+    </div>
+<section class="card"><h2 style="margin-top:0">What our agriculture programme covers</h2><ul class="bul">
+<li>Farmer registration and village-level engagement.</li>
+<li>Soil testing and soil health education.</li>
+<li>Crop advisory and climate-resilient farming awareness.</li>
+<li>Agricultural research and demonstration projects.</li>
+<li>FPO and self-help group engagement.</li>
+<li>Farmer training events and knowledge resources.</li></ul></section>
+ <section class="card"><h2 style="margin-top:0">Related pages</h2><ul class="bul">
+<li><a href="agriculture.html">Farmer support and soil health</a></li>
+<li><a href="community-support.html">Government health schemes and entitlements</a></li>
+<li><a href="get-involved.html">Sponsor a health camp</a></li></ul></section>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="common.js"></script>
+</body>
+</html>
