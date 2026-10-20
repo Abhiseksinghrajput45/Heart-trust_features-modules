@@ -1,5 +1,5 @@
-// ---------- LOGO (keep logo.png inside the Images folder) ----------
-const LOGO = "images/logo.png";
+// ---------- LOGO (keep logo.png inside the lowercase "images" folder) ----------
+const LOGO = "images/logo.png";   // folder name is lowercase on GitHub Pages (case-sensitive)
 
 
 // Shortcut for document.querySelector
