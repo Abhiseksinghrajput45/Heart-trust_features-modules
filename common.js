@@ -1,4 +1,6 @@
-const LOGO = "images/logo.png";   
+// ---------- LOGO (keep logo.png inside the Images folder) ----------
+const LOGO = "images/logo.png";
+
 
 // Shortcut for document.querySelector
 const $ = s => document.querySelector(s);
@@ -19,14 +21,17 @@ const PAGES = [
   ['admin','Admin','ଆଡମିନ']
 ];
 
-// Sample health camps (v = village, d = date, t = type)
-let camps = [
-  {v:'Umerkote',d:'2026-10-20',t:'General + Eye'},
-  {v:'Jharigam',d:'2026-10-24',t:'Maternal & Child'},
-  {v:'Papadahandi',d:'2026-10-29',t:'Anaemia Screening'},
-  {v:'Tentulikhunti',d:'2026-11-03',t:'General + Dental'},
-  {v:'Kosagumuda',d:'2026-11-08',t:'Diabetes & BP'}
+// Sample camps: shown ONLY until real camps are published in the Admin page
+const plus = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); };
+const SAMPLE_CAMPS = [
+  {v:'Umerkote',d:plus(6),t:'General + Eye'},
+  {v:'Jharigam',d:plus(10),t:'Maternal & Child'},
+  {v:'Papadahandi',d:plus(16),t:'Anaemia Screening'},
+  {v:'Tentulikhunti',d:plus(24),t:'General + Dental'},
+  {v:'Kosagumuda',d:plus(33),t:'Diabetes & BP'}
 ];
+let camps = [], sampleCamps = false;   // v = village, d = date, t = type
+const sampleNote = () => sampleCamps ? '<p class="mut" style="font-size:.8rem;margin:.6rem 0 0">Sample dates shown for layout. Real camp dates published by HEART Trust staff replace these automatically.</p>' : '';
 
 // ---------- Supabase (database) ----------
 let sb = null;
@@ -49,12 +54,17 @@ async function ensureSupabase(){
   initSb();
 }
 
-// Load published camps from the database (falls back to sample camps if Supabase is not set up)
+// Load published camps from the database (sample camps are used until real ones exist)
 async function loadCamps(){
-  if (!sb) return;
-  const { data, error } = await sb.from('camps').select('village,camp_type,camp_date').eq('published', true).order('camp_date');
-  if (error) console.error('[HEART] Could not load camps (did you run supabase.sql?):', error.message);
-  camps = error ? [] : data.map(r => ({ v: r.village, t: r.camp_type, d: r.camp_date }));
+  let real = [];
+  if (sb) {
+    const { data, error } = await sb.from('camps').select('village,camp_type,camp_date').eq('published', true).order('camp_date');
+    if (error) console.error('[HEART] Could not load camps (did you run supabase.sql?):', error.message);
+    else real = data.map(r => ({ v: r.village, t: r.camp_type, d: r.camp_date }));
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  sampleCamps = !real.some(c => c.d >= today);
+  camps = sampleCamps ? SAMPLE_CAMPS : real;
 }
 
 // Escape text before showing user-submitted data on a page
@@ -121,7 +131,7 @@ function regModal(c){
   </div>`);
 }
 
-const camp = c => `<div class="item"><div><b>${c.v}</b> <span class="badge">${c.t}</span>
+const camp = c => `<div class="item"><div><b>${c.v}</b> <span class="badge">${c.t}</span>${sampleCamps ? ' <span class="badge a">Sample</span>' : ''}
   <div class="mut">📅 ${fd(c.d)}</div></div>
   <button class="btn" onclick='regModal(${JSON.stringify(c)})'>Register</button></div>`;
 
@@ -194,7 +204,7 @@ function shell(){
 
   // Header (logo only, no text)
   document.body.insertAdjacentHTML('afterbegin', `<header><div class="bar">
-    <a class="logo" href="index.html"><img src="${LOGO}" alt="HEART Trust logo"></a>
+    <a class="logo" href="index.html"><img src="${LOGO}" alt="HEART Trust logo" width="48" height="48"></a>
     <button class="mt" onclick="$('nav').classList.toggle('open')">☰</button>
     <nav>
       ${link('about')}
@@ -212,26 +222,29 @@ function shell(){
   const today = new Date().toISOString().slice(0,10);
   const up = camps.filter(c => c.d >= today).slice(0,6);
   const items = up.length
-    ? up.map(c => `<span><b>${c.v.toUpperCase()}</b>${T(c.t)}, ${fd(c.d)}</span>`).join('')
+    ? up.map(c => `<span><b>${c.v.toUpperCase()}</b>${T(c.t)}, ${fd(c.d)}${sampleCamps ? ' · sample' : ''}</span>`).join('')
     : '<span><b>HEART TRUST</b>Camp dates will be announced here</span>';
   document.body.insertAdjacentHTML('afterbegin', `<div class="top"><div class="mq"><div>${items}${items}</div></div>
     <div class="ct">On the ground<a href="tel:+447948608853">+44 7948 608853</a><a href="mailto:info@heartindia.org">info@heartindia.org</a></div></div>`);
 
   // Footer + popup + toast
   document.body.insertAdjacentHTML('beforeend', `<footer class="ft"><div class="fi"><div class="fg">
-    <div><a class="logo" href="index.html"><img src="${LOGO}" alt="HEART Trust logo">HEART Trust</a>
-      <p>An integrated community development organisation for tribal communities in Nabarangpur, Odisha: health, nutrition, agriculture, education and livelihoods.</p></div>
+    <div><a class="logo" href="index.html"><img src="${LOGO}" alt="HEART Trust logo" width="48" height="48">HEART Trust</a>
+      <p>An integrated community development organisation for tribal communities in Nabarangpur, Odisha: health, nutrition, agriculture, education and livelihoods.</p>
+      <p><a href="tel:+447948608853">+44 7948 608853</a><a href="mailto:info@heartindia.org">info@heartindia.org</a><span>Nabarangpur, Odisha, India</span></p></div>
     <div><h4>Programmes</h4><a href="healthcare.html">Healthcare</a><a href="agriculture.html">Agriculture</a><a href="environment.html">Environment</a><a href="education.html">Education</a></div>
     <div><h4>Community</h4><a href="community-support.html">Community Support</a><a href="get-involved.html">Get Involved</a><a href="news-events.html">News &amp; Events</a><a href="impact.html">Impact</a></div>
     <div><h4>Company</h4><a href="about.html">About us</a><a href="contact.html">Contact us</a><a href="admin.html">Staff login</a></div>
     </div>
-    <div class="fb"><span>© 2026 HEART Trust · Nabarangpur, Odisha · Demo – forms send no data.</span>
+    <div class="fb"><span>© 2026 HEART Trust · Nabarangpur, Odisha</span>
     <span><a href="#" onclick="localStorage.removeItem('ck');location.reload();return false">Cookie settings</a></span></div>
     </div></footer>
     <div class="modal" id="modal" onclick="if(event.target.id=='modal')closeM()"><div class="card" id="mb"></div></div>
     <div class="toast" id="toast"></div>`);
-document.body.insertAdjacentHTML('afterbegin', '<a class="skip" href="#main">Skip to main content</a>');
+
+  document.body.insertAdjacentHTML('afterbegin', '<a class="skip" href="#main">Skip to main content</a>');
   const mn = document.querySelector('main'); if (mn && !mn.id) mn.id = 'main';
+
   // Cookie banner (until the visitor chooses)
   if (!localStorage.getItem('ck')) document.body.insertAdjacentHTML('beforeend', `<div class="ck"><div>
     <div class="tx"><h3>We value your privacy</h3>
@@ -261,8 +274,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   try { if (window.init) await init(); }
   catch (e) { console.error('[HEART] page init failed:', e); }
   watchTranslate();
+  loadScript('assistant.js');   // floating AI assistant
 });
-// ---------- BOOKING PAGE for the "LET'S TALK" button ----------
-// ...
-const BOOKING_URL = "https://calendly.com/YOUR-ACCOUNT/YOUR-MEETING";
-dcccccc
